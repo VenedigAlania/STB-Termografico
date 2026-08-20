@@ -27,6 +27,16 @@ create table if not exists public."tbTermoConfiguracion" (
   unique ("Maquina", "Componente")
 );
 
+create table if not exists public."tbTermoPaletas" (
+  "Paleta" text primary key,
+  "TemperaturaMinima" numeric not null,
+  "TemperaturaMaxima" numeric not null,
+  "Emisividad" numeric not null default 0.95,
+  "Distancia" numeric not null default 1,
+  "Activo" boolean not null default true,
+  "updated_at" timestamptz not null default now()
+);
+
 create table if not exists public."tbTermoInspecciones" (
   "Id" uuid primary key default gen_random_uuid(),
   "Fecha" date not null default current_date,
@@ -36,7 +46,7 @@ create table if not exists public."tbTermoInspecciones" (
   "Maquina" text not null,
   "Componente" text not null,
   "Conformidad" text not null check ("Conformidad" in ('Sí','No')),
-  "Temperatura" numeric not null,
+  "Temperatura" numeric,
   "Observacion" text default '',
   "AgregaraImagen" boolean not null default false,
   "InspectorCodigo" text references public."tbUsuarios"("Codigo"),
@@ -92,6 +102,7 @@ create index if not exists "idx_termo_auditoria_inspeccion" on public."tbTermoAu
 
 alter table public."tbUsuarios" enable row level security;
 alter table public."tbTermoConfiguracion" enable row level security;
+alter table public."tbTermoPaletas" enable row level security;
 alter table public."tbTermoInspecciones" enable row level security;
 alter table public."tbTermoImagenes" enable row level security;
 alter table public."tbTermoAuditoria" enable row level security;
@@ -116,6 +127,11 @@ insert into public."tbTermoConfiguracion" ("Grupo","Maquina","Componente","Limit
 ('Producción','PR01','Acoplamiento',50,65,78,false),
 ('Producción','PR02','Reductor',65,80,95,true)
 on conflict ("Maquina","Componente") do nothing;
+
+insert into public."tbTermoPaletas" ("Paleta","TemperaturaMinima","TemperaturaMaxima","Emisividad","Distancia") values
+('Hierro',20,120,0.95,1),('Arcoíris',20,150,0.95,1),('Blanco caliente',15,100,0.95,1),
+('Negro caliente',15,100,0.95,1),('Escala de grises',20,120,0.95,1),('Otra',20,100,0.95,1)
+on conflict ("Paleta") do nothing;
 
 -- No se crean políticas para anon/authenticated: el frontend no accede directamente.
 -- La API serverless usa service_role y omite RLS de forma segura.

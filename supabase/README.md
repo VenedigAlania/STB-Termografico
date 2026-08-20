@@ -10,4 +10,8 @@ La clave `SUPABASE_SERVICE_ROLE_KEY` es secreta: debe existir únicamente en Ver
 
 El bucket `termografias` es privado. Las imágenes se consultan mediante URLs firmadas generadas por la función serverless.
 
+Si ya creó las demás tablas y solo falta guardar máquinas, ejecute `migracion_maquinas.sql`. La aplicación guarda una fila por combinación de máquina y componente en `tbTermoConfiguracion`.
+
+Si el proyecto ya estaba desplegado antes de incorporar la calibración de paletas, ejecute también `migracion_paletas.sql`. Esta migración crea `tbTermoPaletas` y permite guardar una inspección conforme sin temperatura.
+
 Para producción conviene migrar `Contrasena` a hashes (por ejemplo bcrypt/Argon2) o Supabase Auth. El esquema conserva texto para ser compatible con la estructura actual de `tbUsuarios` del aplicativo de referencia.
